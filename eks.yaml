@@ -56,6 +56,9 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
         - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+      Tags:
+        - Key: yor_trace
+          Value: a89b0f15-8c72-469b-8b27-d13a8ab37e8d
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -65,12 +68,16 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-VPC'
+        - Key: yor_trace
+          Value: b5cc5bc8-ff3b-46fc-b889-d5f1cc76dc6f
   InternetGateway:
     Type: "AWS::EC2::InternetGateway"
     Properties:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-Internet Gateway'
+        - Key: yor_trace
+          Value: f561862b-d185-4fd1-8e7b-241476dfaaae
   VPCGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
@@ -85,6 +92,8 @@ Resources:
           Value: Public Subnets
         - Key: Network
           Value: Public
+        - Key: yor_trace
+          Value: 2ed97eed-58e2-4437-a08c-86472107fbc2
   PrivateRouteTable01:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -94,6 +103,8 @@ Resources:
           Value: Private Subnet AZ1
         - Key: Network
           Value: Private01
+        - Key: yor_trace
+          Value: d394a9af-1df5-452d-95ce-30edd65f0bfd
   PrivateRouteTable02:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -103,6 +114,8 @@ Resources:
           Value: Private Subnet AZ2
         - Key: Network
           Value: Private02
+        - Key: yor_trace
+          Value: 58f3e8a2-dd7d-45ac-a459-40cb83ccfb02
   PublicRoute:
     DependsOn:
     - VPCGatewayAttachment
@@ -141,6 +154,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-NatGatewayAZ1'
+        - Key: yor_trace
+          Value: 84b56de5-8fa1-4ce7-8311-9fc17c2ca861
   NatGateway02:
     DependsOn:
     - NatGatewayEIP2
@@ -153,18 +168,26 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-NatGatewayAZ2'
+        - Key: yor_trace
+          Value: 99e58c19-3e77-4a86-8939-27942d532f27
   NatGatewayEIP1:
     DependsOn:
     - VPCGatewayAttachment
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
+      Tags:
+        - Key: yor_trace
+          Value: bfa7c59a-5158-4e0f-a5c7-e85f3e07c7f3
   NatGatewayEIP2:
     DependsOn:
     - VPCGatewayAttachment
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
+      Tags:
+        - Key: yor_trace
+          Value: 02791635-a2d2-49e8-8dc8-1f131945a022
   PublicSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -182,6 +205,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}-PublicSubnet01"
+        - Key: yor_trace
+          Value: 17c3a535-90ca-4e19-bad3-5bcd260ab11b
   PublicSubnet02:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -199,6 +224,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}-PublicSubnet02"
+        - Key: yor_trace
+          Value: 9bed09c8-1233-4f18-837d-96cf30f72ec6
   PrivateSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -218,6 +245,8 @@ Resources:
           Value: !Sub "${AWS::StackName}-PrivateSubnet01"
         - Key: "kubernetes.io/role/internal-elb"
           Value: "1"
+        - Key: yor_trace
+          Value: 416da2fd-81a1-46ce-8d27-457924fce51f
   PrivateSubnet02:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -237,6 +266,8 @@ Resources:
           Value: !Sub "${AWS::StackName}-PrivateSubnet02"
         - Key: "kubernetes.io/role/internal-elb"
           Value: "1"
+        - Key: yor_trace
+          Value: 6935c02f-de83-45e7-b669-4ff65d557e82
   PublicSubnet01RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -262,6 +293,9 @@ Resources:
     Properties:
       GroupDescription: Cluster communication with worker nodes
       VpcId: !Ref VPC
+      Tags:
+        - Key: yor_trace
+          Value: 512b60e6-49e2-4ab5-869b-99e7ab358058
   EKSCluster:
     Type: AWS::EKS::Cluster
     Properties:
