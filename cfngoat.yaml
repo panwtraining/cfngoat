@@ -43,6 +43,8 @@ Resources:
       Tags: 
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-ec2" 
+        - Key: yor_trace
+          Value: 55673ebf-10e2-4be2-91d1-8fd12d3fec61
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -54,7 +56,6 @@ Resources:
           export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY
           export AWS_DEFAULT_REGION=us-west-2
           echo "<h1>Deployed via CloudFormation</h1>" | sudo tee /var/www/html/index.html
-
   WebHostStorage:
     # Unencrypted Volume
     Type: AWS::EC2::Volume
@@ -68,9 +69,10 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-ebs"
+        - Key: yor_trace
+          Value: b3b657bf-2168-480a-8a9a-03b412b58da1
 
   ### CFN Does not Support Volume Snapshot
-
   EBSAttachment:
     Type: AWS::EC2::VolumeAttachment
     Properties:
@@ -98,7 +100,9 @@ Resources:
         FromPort: 0
         ToPort: 0
         CidrIp: 0.0.0.0/0
-
+      Tags:
+        - Key: yor_trace
+          Value: 1b8177a6-12b7-4524-a9be-10a7e2a43fc4
   WebVPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -108,7 +112,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-vpc"
-
+        - Key: yor_trace
+          Value: 2cda310d-b17d-4506-9850-c662a7c41d9e
   WebSubnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -122,7 +127,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-subnet"
-
+        - Key: yor_trace
+          Value: 517e8676-0837-4e44-b06f-0b3179e232f3
   WebSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -136,20 +142,21 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-subnet2"
-
+        - Key: yor_trace
+          Value: ea041f6d-98d3-45b0-a79f-ed1a854e61cf
   WebIGW:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-igw"
-
+        - Key: yor_trace
+          Value: 62224c59-19ed-4278-afd9-136b91d88288
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref WebIGW
       VpcId: !Ref WebVPC
-
   WebRTB:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -157,7 +164,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-rtb"
-
+        - Key: yor_trace
+          Value: f96f857e-980a-409a-a2fb-01d56a4deae4
   WebDefaultPublicRoute:
     Type: AWS::EC2::Route
     DependsOn:
@@ -166,19 +174,16 @@ Resources:
       RouteTableId: !Ref WebRTB
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref WebIGW
-
   RTBAssoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref WebSubnet
       RouteTableId: !Ref WebRTB
-
   RTBAssoc2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref WebSubnet2
       RouteTableId: !Ref WebRTB
-
   WebENI:
     Type: AWS::EC2::NetworkInterface
     Properties:
@@ -188,7 +193,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-primary_network_interface"
-
+        - Key: yor_trace
+          Value: 75ce949f-a13d-4656-9826-e77c033b9598
   VpcFlowLogs:
     Type: AWS::EC2::FlowLog
     Properties:
@@ -197,7 +203,9 @@ Resources:
       LogDestination: !GetAtt FlowBucket.Arn
       LogDestinationType: s3
       TrafficType: ALL
-
+      Tags:
+        - Key: yor_trace
+          Value: cd004e5a-21f0-4777-bb89-3b0813046561
   FlowBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -206,11 +214,12 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-flowlogs"
+        - Key: yor_trace
+          Value: fafab6c9-8537-4fcb-b0d6-b793a0607a8b
 
   #############
   ###  IAM  ###
   #############
-
   User:
     Type: AWS::IAM::User
     Properties:
@@ -220,12 +229,12 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-user"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: ddd8d419-bc0e-4877-9cc4-3351724271ca
   AccessKey:
     Type: AWS::IAM::AccessKey
     Properties:
       UserName: !Ref User
-
   UserPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -246,7 +255,6 @@ Resources:
   #############
   ###  KMS  ###
   #############
-
   LogsKey:
     # Key does not have rotation enabled
     Type: AWS::KMS::Key
@@ -263,7 +271,9 @@ Resources:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
           Action: kms:*
           Resource: '*'
-
+      Tags:
+        - Key: yor_trace
+          Value: 48202b2e-a76d-4d17-a25e-4b95b53051c1
   LogsKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
@@ -273,7 +283,6 @@ Resources:
   ################
   ###  DB App  ###
   ################
-
   DefaultDB:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Delete
@@ -302,7 +311,8 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-rds"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: 5a51d5ac-fd22-4e58-9fd1-5c34c14cafa9
   DefaultDBOptionGroup:
     Type: AWS::RDS::OptionGroup
     Properties:
@@ -315,7 +325,8 @@ Resources:
           Value: !Sub "og-${AWS::AccountId}-${CompanyName}-${Environment}"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: aa551f3e-b287-46b1-b193-e3fedf2c5adb
   DefaultDBParameterGroup:
     Type: AWS::RDS::DBParameterGroup
     Properties:
@@ -329,7 +340,8 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-pg"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: 5d06077f-f1c8-4afa-b4d7-cf68a081f025
   DefaultSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -343,7 +355,8 @@ Resources:
           Value: !Sub "sg-${AWS::AccountId}-${CompanyName}-${Environment}"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: c94e4739-a7c2-4600-b3b1-b50ee45135e5
   DefaultSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -360,7 +373,8 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-rds-sg"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: 7dca1db7-086f-485f-b3eb-99ee3df02b53
   EC2Profile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -368,7 +382,6 @@ Resources:
       Path: "/"
       Roles:
         - !Ref EC2Role
-
   EC2Role:
     Type: AWS::IAM::Role
     Properties:
@@ -389,7 +402,8 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-role"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: b6390190-7776-450c-ace8-408fb2b7ab3c
   EC2Policy:
     Type: AWS::IAM::Policy
     Properties:
@@ -406,8 +420,6 @@ Resources:
             Resource: "*"
       Roles:
         - !Ref EC2Role
-
-
   DBAppInstance:
     # EC2 have plain text secrets in user data
     Type: AWS::EC2::Instance
@@ -425,6 +437,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-dbapp"
+        - Key: yor_trace
+          Value: 19a4108c-36f3-4970-acc3-12e14f77a779
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -545,7 +559,6 @@ Resources:
   ################
   ###  Lambda  ###
   ################
-
   IAM4Lambda:
     Type: "AWS::IAM::Role"
     Properties:
@@ -566,7 +579,8 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-analysis-lambda"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: 4b04e0d8-2981-411c-b7ab-caa2feb3fc8d
   AnalysisLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -586,11 +600,12 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-analysis"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
+        - Key: yor_trace
+          Value: db02aa09-8188-4cc3-95dd-9cc2e47fa336
 
   ############
   ###  S3  ###
   ############
-
   DataBucket:
     # Public, not encrypted, no access logs, no versioning
     Type: AWS::S3::Bucket
@@ -601,9 +616,10 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-data"
+        - Key: yor_trace
+          Value: afab7d3a-628e-4c72-a9fd-76574c186cb8
 
   ### TODO - Custom Upload of insecure document
-
   FinancialsBucket:
     # not encrypted, no access logs, no versioning
     Type: AWS::S3::Bucket
@@ -614,7 +630,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-financials"
-
+        - Key: yor_trace
+          Value: 5d001185-5e99-4230-a924-c48af3d74156
   OperationsBucket:
     # not encrypted, no access logs
     Type: AWS::S3::Bucket
@@ -627,7 +644,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-operations"
-
+        - Key: yor_trace
+          Value: bb95fb96-f718-40df-b5cc-f970f3fede1e
   DataScienceBucket:
     # not encrypted
     Type: AWS::S3::Bucket
@@ -643,7 +661,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-data-science"
-
+        - Key: yor_trace
+          Value: 2b22b754-fe1f-4cd7-96f9-ce1b87e582b3
   LogsBucket:
     # not encrypted
     Type: AWS::S3::Bucket
@@ -661,6 +680,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-logs"
+        - Key: yor_trace
+          Value: d6c9041f-196a-4df5-aca8-decc48bd65c2
 
    ########################
    ### Clean S3 Buckets ###
@@ -697,7 +718,8 @@ Resources:
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}-cleanup-role"
         - Key: Environment
           Value: !Sub "${AWS::AccountId}-${CompanyName}-${Environment}"
-
+        - Key: yor_trace
+          Value: f8f094c6-575c-4312-ae1f-a9cd81c1fb16
   CleanBucketFunction:
     Type: "AWS::Lambda::Function"
     DependsOn:
@@ -835,37 +857,34 @@ Resources:
             request.write(responseBody);
             request.end();
           }
-
+      Tags:
+        - Key: yor_trace
+          Value: 5e5a6c6f-0afa-4d92-9d91-7ee5f5d322dc
   CleanFlowBucketOnDelete:
     Type: Custom::cleanupflowbucket
     Properties:
       ServiceToken: !GetAtt CleanBucketFunction.Arn
       BucketName: !Ref FlowBucket
-
   CleanDataBucketOnDelete:
     Type: Custom::cleanupdatabucket
     Properties:
       ServiceToken: !GetAtt CleanBucketFunction.Arn
       BucketName: !Ref DataBucket
-
   CleanFinancialsBucketOnDelete:
     Type: Custom::cleanupfinancialsbucket
     Properties:
       ServiceToken: !GetAtt CleanBucketFunction.Arn
       BucketName: !Ref FinancialsBucket
-
   CleanOperationsBucketOnDelete:
     Type: Custom::cleanupoperationsbucket
     Properties:
       ServiceToken: !GetAtt CleanBucketFunction.Arn
       BucketName: !Ref OperationsBucket
-
   CleanDataScienceBucketOnDelete:
     Type: Custom::cleanupdatasciencebucket
     Properties:
       ServiceToken: !GetAtt CleanBucketFunction.Arn
       BucketName: !Ref DataScienceBucket
-
   CleanLogsBucketOnDelete:
     Type: Custom::cleanuplogsbucket
     Properties:
